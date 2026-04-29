@@ -1,8 +1,6 @@
 <br />
 <div align="center">
-  <a href="https://github.com/Amber-s-art/LensLore">
-    <img src="https://via.placeholder.com/150x150?text=LensLore+Logo" alt="Logo" width="120" height="120">
-  </a>
+  <img src="https://via.placeholder.com/150x150?text=LensLore+Logo" alt="Logo" width="120" height="120">
 
   <h3 align="center">LensLore 🎞️✨</h3>
 
@@ -11,11 +9,9 @@
     An intelligent cinematic discovery engine for Bollywood and Hollywood.
     <br />
     <br />
-    <a href="https://github.com/Amber-s-art/LensLore"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/Amber-s-art/LensLore"><strong>Explore the project »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Amber-s-art/LensLore">View Demo</a>
-    ·
     <a href="https://github.com/Amber-s-art/LensLore/issues">Report Bug</a>
     ·
     <a href="https://github.com/Amber-s-art/LensLore/issues">Request Feature</a>
@@ -40,17 +36,13 @@
     <li><a href="#usage">Usage</a></li>
     <li><a href="#repository-structure">Repository Structure</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
 ---
 
 ## 📖 About The Project
-
-[![LensLore Screen Shot][product-screenshot]](https://github.com/Amber-s-art/LensLore)
 
 Welcome to **LensLore**—where cinema meets data. LensLore is an intelligent cinematic discovery engine tailored for both Bollywood and Hollywood. Moving beyond basic filters, it leverages **TF-IDF** and **Cosine Similarity** to surface highly accurate film recommendations based on deep thematic tags, genres, and cast members. 
 
@@ -68,7 +60,7 @@ The entire experience is wrapped in a premium, editorial-style interface that ma
 
 ## 🛠️ Tech Stack
 
-This project is built using the following open-source technologies:
+This project is built using the following technologies:
 
 * **[Python 3](https://www.python.org/)** - Core logic and data processing
 * **[Streamlit](https://streamlit.io/)** - Frontend framework (with custom CSS/HTML injection)
@@ -100,7 +92,7 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 Install the required dependencies:
 
 Bash
-pip install streamlit pandas scikit-learn requests
+pip install -r requirements.txt
 Add your TMDB API Key:
 Open app.py and replace the placeholder TMDB_HEADERS token with your own Bearer token.
 
@@ -128,14 +120,18 @@ Hover over any movie card to read its synopsis, or click the card to watch the t
 Plaintext
 LensLore/
 │
-├── app.py                     # Main Streamlit application and UI
+├── assets/
+│   └── logo.png                 # App logo and UI assets
 ├── dataset/
 │   └── cleaned/
 │       ├── bollywood_cleaned.csv  # Pre-processed Bollywood dataset
 │       └── hollywood_cleaned.csv  # Pre-processed Hollywood dataset
-├── logs/
-│   └── recom.csv              # Auto-generated backend recommendation logs
-└── README.md                  # Project documentation
+├── notebooks/
+│   ├── data_overview.ipynb      # EDA and data exploration
+│   └── data_modifying.ipynb     # Data cleaning logic
+├── app.py                       # Main Streamlit application and UI
+├── requirements.txt             # Python dependencies
+└── README.md                    # Project documentation
 🔮 Roadmap
 [x] Initial release with TF-IDF and Cosine Similarity
 
@@ -149,20 +145,10 @@ LensLore/
 
 [ ] Analytics Dashboard: Create an admin page to visualize data from logs/recom.csv.
 
-See the open issues for a full list of proposed features (and known issues).
-
-🤝 Contributing
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
-
-Fork the Project
-
-Create your Feature Branch (git checkout -b feature/AmazingFeature)
-
-Commit your Changes (git commit -m 'Add some AmazingFeature')
-
-Push to the Branch (git push origin feature/AmazingFeature)
-
-Open a Pull Request
-
 📝 License
-Distributed under the MIT License. See LICENSE for more information.
+Distributed under the MIT License.
+
+🙏 Acknowledgments
+The Movie Database (TMDB) for providing the API that powers the posters and metadata.
+
+Streamlit for an incredible rapid prototyping framework.
