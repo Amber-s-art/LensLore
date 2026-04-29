@@ -1,6 +1,8 @@
 <br />
 <div align="center">
-  <img src="https://via.placeholder.com/150x150?text=LensLore+Logo" alt="Logo" width="120" height="120">
+  <a href="https://github.com/Amber-s-art/LensLore">
+    <img src="assets/logo.png" alt="LensLore Logo" width="250">
+  </a>
 
   <h3 align="center">LensLore 🎞️✨</h3>
 
@@ -84,40 +86,46 @@ Make sure you have Python installed on your machine. You will also need a TMDB A
    ```bash
    git clone [https://github.com/Amber-s-art/LensLore.git](https://github.com/Amber-s-art/LensLore.git)
    cd LensLore
-Create a virtual environment (Recommended):
 
-Bash
-python -m venv venv
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Amber-s-art/LensLore.git](https://github.com/Amber-s-art/LensLore.git)
+   cd LensLore
+
+2. **Create a virtual environment (Recommended):**
+   ```bash
+   python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-Install the required dependencies:
 
-Bash
-pip install -r requirements.txt
-Add your TMDB API Key:
-Open app.py and replace the placeholder TMDB_HEADERS token with your own Bearer token.
+3. **Install the required dependencies:**
+   ```bash
+   pip install -r requirements.txt
 
-Ensure the datasets are in place:
-Verify that dataset/cleaned/bollywood_cleaned.csv and dataset/cleaned/hollywood_cleaned.csv exist.
+4. **Add your TMDB API Key:**
+   Open `app.py` and replace the placeholder `TMDB_HEADERS` token with your own Bearer token.
 
-Run the application:
+5. **Ensure the datasets are in place:**
+   Verify that `dataset/cleaned/bollywood_cleaned.csv` and `dataset/cleaned/hollywood_cleaned.csv` exist.
 
-Bash
-streamlit run app.py
-💻 Usage
-Open http://localhost:8501 in your browser.
+6. **Run the application:**
+   ```bash
+   streamlit run app.py
 
-Select your preferred industry (Bollywood or Hollywood).
+### 💻 Usage
+1. Open http://localhost:8501 in your browser.
 
-Filter the catalog by Genre or Actor.
+2. Select your preferred industry (Bollywood or Hollywood).
 
-Select a specific movie from the dropdown.
+3. Filter the catalog by Genre or Actor.
 
-Click "Discover Films" to generate 5 highly correlated recommendations based on the movie's thematic tags.
+4. Select a specific movie from the dropdown.
 
-Hover over any movie card to read its synopsis, or click the card to watch the trailer.
+5. Click "Discover Films" to generate 5 highly correlated recommendations based on the movie's thematic tags.
 
-📁 Repository Structure
-Plaintext
+6. Hover over any movie card to read its synopsis, or click the card to watch the trailer.
+
+### 📁 Repository Structure
+
 LensLore/
 │
 ├── assets/
@@ -132,23 +140,24 @@ LensLore/
 ├── app.py                       # Main Streamlit application and UI
 ├── requirements.txt             # Python dependencies
 └── README.md                    # Project documentation
-🔮 Roadmap
-[x] Initial release with TF-IDF and Cosine Similarity
 
-[x] Implement TMDB API for live posters and trailers
+### 🔮 Roadmap
+. [x] Initial release with TF-IDF and Cosine Similarity
 
-[x] Custom CSS for premium UI
+. [x] Implement TMDB API for live posters and trailers
 
-[ ] Collaborative Filtering: Integrate user-rating data to suggest films based on similar user profiles.
+. [x] Custom CSS for premium UI
 
-[ ] Data Pipeline Automation: Automatically pull in newly released movies weekly.
+. [ ] Collaborative Filtering: Integrate user-rating data to suggest films based on similar user profiles.
 
-[ ] Analytics Dashboard: Create an admin page to visualize data from logs/recom.csv.
+. [ ] Data Pipeline Automation: Automatically pull in newly released movies weekly.
 
-📝 License
+. [ ] Analytics Dashboard: Create an admin page to visualize data from logs/recom.csv.
+
+### 📝 License
 Distributed under the MIT License.
 
-🙏 Acknowledgments
+### 🙏 Acknowledgments
 The Movie Database (TMDB) for providing the API that powers the posters and metadata.
 
 Streamlit for an incredible rapid prototyping framework.
