@@ -11,11 +11,18 @@ from sklearn.neighbors import NearestNeighbors
 from PIL import Image
 
 
-
 # ══════════════════════════════════════════════════════════════
-#  Load the image from your assets folder
+#  ASSET LOADING
 # ══════════════════════════════════════════════════════════════
+# 1. Load for the browser tab (requires PIL Image)
 img_icon = Image.open("assets/logo.png")
+
+# 2. Load for the HTML Hero center (requires Base64 string)
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+hero_icon_base64 = get_base64_image("assets/logo.png")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -404,7 +411,7 @@ st.markdown(f"""
 # ══════════════════════════════════════════════════════════════
 st.markdown(f"""
 <div class="hero">
-  <img src="data:image/png;base64,{img_icon}" class="hero-icon" style="height: 60px; width: auto; margin-bottom: 10px;">
+  <img src="data:image/png;base64,{hero_icon_base64}" class="hero-icon" style="height: 60px; width: auto; margin-bottom: 10px;">
   <div class="hero-logo">
     <span class="logo-l">Lens</span><span class="logo-r">Lore</span>
   </div>
