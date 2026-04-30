@@ -471,9 +471,30 @@ div[data-baseweb="select"] > div:focus-within {
     color: var(--gold-light) !important;
 }
 
+
+/* Force button column to be wide enough & center the button */
+section[data-testid="stColumn"]:has(.stButton) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+/* Streamlit wraps button in a div — make it full width */
+div[data-testid="stButton"] {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
 /* ══════════════════════════
-   BUTTON (Enhanced with ripple container)
+   BUTTON — fixed, no-wrap, full width
 ══════════════════════════ */
+
+/* Make the Streamlit button column stretch to full width */
+div[data-testid="stButton"],
+div[data-testid="stButton"] > button {
+    width: 100% !important;
+}
+
 .stButton > button {
     background: linear-gradient(135deg,
         rgba(6,6,8,1) 0%,
@@ -481,29 +502,37 @@ div[data-baseweb="select"] > div:focus-within {
         rgba(6,6,8,1) 100%) !important;
     background-size: 300% auto !important;
     color: var(--gold-light) !important;
-    border: 1px solid var(--gold) !important;
-    padding: 1em 3.5em !important;
+    border: 1.5px solid var(--gold) !important;
+    /* Fixed padding — generous horizontal, comfortable vertical */
+    padding: 16px 40px !important;
     font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.82em !important;
+    font-size: 0.85em !important;
     font-weight: 600 !important;
-    letter-spacing: 0.35em !important;
+    /* Reduced letter-spacing so text fits on ONE line */
+    letter-spacing: 0.18em !important;
     text-transform: uppercase !important;
-    border-radius: 3px !important;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    white-space: nowrap !important;
+    border-radius: 4px !important;
+    transition: background 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease, color 0.3s ease !important;
     animation: buttonGlow 4s ease-in-out infinite !important;
     position: relative !important;
     overflow: hidden !important;
-    display: block !important;
-    margin: 0 auto !important;
+    width: 100% !important;
+    min-width: 220px !important;
     cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    line-height: 1 !important;
 }
 .stButton > button::before {
     content: '' !important;
     position: absolute !important;
     inset: 0 !important;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent) !important;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%) !important;
     transform: translateX(-100%) !important;
-    transition: transform 0.6s ease !important;
+    transition: transform 0.55s ease !important;
 }
 .stButton > button:hover::before {
     transform: translateX(100%) !important;
@@ -511,14 +540,16 @@ div[data-baseweb="select"] > div:focus-within {
 .stButton > button:hover {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%) !important;
     color: #060608 !important;
-    box-shadow: 0 0 40px rgba(201,168,76,0.5), 0 8px 25px rgba(0,0,0,0.6) !important;
-    transform: translateY(-4px) scale(1.04) !important;
+    box-shadow: 0 0 35px rgba(201,168,76,0.45), 0 8px 20px rgba(0,0,0,0.6) !important;
+    transform: translateY(-3px) !important;
     border-color: var(--gold-light) !important;
-    letter-spacing: 0.42em !important;
+    /* Do NOT change letter-spacing on hover — causes wrapping */
+    letter-spacing: 0.18em !important;
     animation: none !important;
 }
 .stButton > button:active {
-    transform: translateY(-1px) scale(1.01) !important;
+    transform: translateY(0) !important;
+    box-shadow: 0 0 15px rgba(201,168,76,0.3) !important;
 }
 
 /* Ripple */
@@ -895,6 +926,91 @@ div[data-baseweb="select"] > div:focus-within {
     gap: 10px;
 }
 .ll-toast-icon { color: var(--gold); font-size: 1.1em; }
+
+/* ══════════════════════════
+   BUTTON HINT TEXT
+══════════════════════════ */
+.btn-hint {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.75em;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.4rem;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+}
+
+/* ══════════════════════════
+   UI FRIENDLINESS — Spacing, Gaps, Readability
+══════════════════════════ */
+
+/* Main container — more padding on sides */
+.block-container {
+    padding: 0 3rem 6rem !important;
+    max-width: 1180px !important;
+}
+
+/* Selectbox rows — add breathing room */
+div[data-testid="stSelectbox"] {
+    margin-bottom: 0.4rem !important;
+}
+div[data-baseweb="select"] > div {
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+    font-size: 0.95em !important;
+}
+
+/* Column gap helpers */
+div[data-testid="stHorizontalBlock"] {
+    gap: 1.5rem !important;
+    align-items: flex-start !important;
+}
+
+/* Widget label spacing */
+label[data-testid="stWidgetLabel"] {
+    margin-bottom: 6px !important;
+    display: block !important;
+}
+
+/* Rec cards — ensure equal height rows */
+.rec-card-link { height: 100%; display: flex; flex-direction: column; }
+.rec-card { flex: 1; }
+
+/* Selected card — better mobile stack */
+@media (max-width: 768px) {
+    .sel-card-wrapper { flex-direction: column; }
+    .sel-poster-wrap  { flex: 0 0 auto; max-height: 280px; }
+    .sel-info         { padding: 20px; }
+    .sel-title        { font-size: 1.5em; }
+    .block-container  { padding: 0 1rem 5rem !important; }
+    .stats-bar        { flex-wrap: wrap; }
+    .stat-item        { flex: 0 0 50%; border-bottom: 1px solid var(--border); }
+}
+
+/* Stats bar spacing */
+.stats-bar { margin: 1.5rem 0 2rem; }
+.stat-item { padding: 20px 10px; }
+.stat-num  { font-size: 1.6em; }
+
+/* Section spacing */
+.s-eyebrow { margin-bottom: 4px; }
+.s-heading { margin-top: 4px; font-size: 1.65em; }
+
+/* Better spinner text */
+.stSpinner > div > div {
+    font-size: 0.85em !important;
+    color: var(--text-muted) !important;
+    letter-spacing: 0.1em !important;
+}
+
+/* Warning / Error boxes */
+div[data-testid="stAlert"] {
+    background: var(--surface2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px !important;
+    color: var(--text-muted) !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -1197,7 +1313,9 @@ def recommend(movie_name_input):
 #  DISCOVER BUTTON
 # ══════════════════════════════════════════════════════════════
 st.markdown('<div class="divider" style="margin-top: 3rem;"></div>', unsafe_allow_html=True)
-bc = st.columns([2.5, 1, 2.5])
+st.markdown('<div class="btn-hint">All set? Click below to discover your films.</div>', unsafe_allow_html=True)
+st.markdown('<div class="btn-hint">All set? Click below to discover your films.</div>', unsafe_allow_html=True)
+bc = st.columns([1, 2, 1])
 with bc[1]:
     if st.button("✦  Discover Films"):
         st.session_state.recommend_triggered = True
@@ -1473,7 +1591,7 @@ st.markdown("""
     setTimeout(() => {
         const toast = document.createElement('div');
         toast.className = 'll-toast';
-        toast.innerHTML = '<span class="ll-toast-icon">✦</span> Welcome to LensLore — discover your next film';
+        toast.innerHTML = '<span class="ll-toast-icon">🎬</span> Welcome to LensLore — discover your next film';
         document.body.appendChild(toast);
         setTimeout(() => {
             toast.style.transition = 'opacity 0.6s, transform 0.6s';
