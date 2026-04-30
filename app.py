@@ -403,9 +403,9 @@ st.markdown(f"""
 # ══════════════════════════════════════════════════════════════
 #  HERO
 # ══════════════════════════════════════════════════════════════
-st.markdown("""
+st.markdown(f"""
 <div class="hero">
-  <span class="hero-icon">🎞️</span>
+  <img src="data:image/png;base64,{img_icon}" class="hero-icon" style="height: 60px; width: auto; margin-bottom: 10px;">
   <div class="hero-logo">
     <span class="logo-l">Lens</span><span class="logo-r">Lore</span>
   </div>
