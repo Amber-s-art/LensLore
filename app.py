@@ -399,6 +399,19 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# ══════════════════════════════════════════════════════════════
+#  HERO
+# ══════════════════════════════════════════════════════════════
+st.markdown(f"""
+<div class="hero">
+  <img src="data:image/png;base64,{img_icon}" class="hero-icon" style="height: 60px; width: auto; margin-bottom: 10px;">
+  <div class="hero-logo">
+    <span class="logo-l">Lens</span><span class="logo-r">Lore</span>
+  </div>
+  <p class="hero-sub">Intelligent Cinema Discovery &nbsp;·&nbsp; Bollywood &amp; Hollywood</p>
+  <div class="hero-line"></div>
+</div>
+""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
