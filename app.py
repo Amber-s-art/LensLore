@@ -5,11 +5,11 @@ import requests
 import csv
 import os
 import html
+import base64  
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from PIL import Image
-
 
 # ══════════════════════════════════════════════════════════════
 #  ASSET LOADING
