@@ -8,17 +8,25 @@ import html
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
+from PIL import Image
+
+
+
+# ══════════════════════════════════════════════════════════════
+#  Load the image from your assets folder
+# ══════════════════════════════════════════════════════════════
+img_icon = Image.open("assets/logo.png")
+
 
 # ══════════════════════════════════════════════════════════════
 #  PAGE CONFIG
 # ══════════════════════════════════════════════════════════════
 st.set_page_config(
     page_title="LensLore · Film Discovery",
-    page_icon="🎞️",
+    page_icon=img_icon,
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
 # ══════════════════════════════════════════════════════════════
 #  GLOBAL CSS  — Enhanced Cinematic Editorial 
 # ══════════════════════════════════════════════════════════════
