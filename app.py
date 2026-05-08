@@ -5,7 +5,7 @@ import requests
 import csv
 import os
 import html
-import base64  
+import base64
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -167,6 +167,75 @@ html, body, [class*="css"] {
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
+@keyframes floatParticle {
+    0%   { transform: translateY(100vh) translateX(0px) scale(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-100px) translateX(var(--drift)) scale(1); opacity: 0; }
+}
+@keyframes cardEntrance {
+    0%   { opacity: 0; transform: translateY(60px) rotateX(10deg) scale(0.95); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0) rotateX(0deg) scale(1); filter: blur(0); }
+}
+@keyframes holographicShimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes borderDash {
+    to { stroke-dashoffset: -100; }
+}
+@keyframes industryPill {
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+@keyframes progressFill {
+    from { width: 0%; }
+    to   { width: 100%; }
+}
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes successPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0.6); }
+    70%  { box-shadow: 0 0 0 20px rgba(201,168,76,0); }
+    100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+}
+
+/* ══════════════════════════
+   CURSOR GLOW (via JS)
+══════════════════════════ */
+#cursor-glow {
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+    mix-blend-mode: screen;
+}
+
+/* ══════════════════════════
+   PARTICLES
+══════════════════════════ */
+.particles-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+.particle {
+    position: absolute;
+    bottom: 0;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0;
+}
 
 /* ══════════════════════════
    AMBIENT BACKGROUND BLOBS
@@ -217,21 +286,6 @@ body::after {
     content: '';
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
     background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
-}
-
-/* ══════════════════════════
-   CURSOR GLOW (via JS)
-══════════════════════════ */
-#cursor-glow {
-    width: 300px; height: 300px;
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    transition: opacity 0.3s ease;
-    mix-blend-mode: screen;
 }
 
 /* ══════════════════════════
@@ -378,6 +432,30 @@ body::after {
     width: 2px; height: 2px;
     background: var(--gold);
     border-radius: 50%;
+}
+
+/* Industry badge */
+.industry-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 1.2em;
+    padding: 6px 18px;
+    border-radius: 30px;
+    font-size: 0.7em;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 600;
+    animation: industryPill 0.5s ease both;
+    border: 1px solid var(--gold-dim);
+    background: rgba(201,168,76,0.06);
+    color: var(--gold);
+}
+.industry-badge .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulseRing 2s ease-out infinite;
 }
 
 /* ══════════════════════════
@@ -547,10 +625,10 @@ div[data-baseweb="select"] > div:focus-within {
     border-radius: 10px;
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-    animation: revealSlide 0.7s ease backwards;
     position: relative;
     cursor: pointer;
     height: 100%;
+    perspective: 1000px;
 }
 .rec-card::after {
     content: '';
@@ -566,9 +644,30 @@ div[data-baseweb="select"] > div:focus-within {
     box-shadow: 0 0 20px rgba(201,168,76,0.2) inset;
 }
 .rec-card:hover {
-    transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 0 1px var(--gold-dim), 0 0 40px rgba(201,168,76,0.1);
+    transform: translateY(-14px) scale(1.02) rotateX(2deg);
+    box-shadow: 0 35px 70px rgba(0,0,0,0.95), 0 0 0 1px var(--gold-dim), 0 0 50px rgba(201,168,76,0.12);
 }
+
+/* Holographic edge on hover */
+.rec-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg,
+        rgba(201,168,76,0) 0%,
+        rgba(201,168,76,0.04) 40%,
+        rgba(201,168,76,0) 60%,
+        rgba(201,168,76,0.06) 100%);
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: 1;
+    animation: holographicShimmer 3s ease infinite;
+}
+.rec-card:hover::before { opacity: 1; }
+
 .card-image-wrapper {
     position: relative;
     width: 100%;
@@ -671,6 +770,29 @@ div[data-baseweb="select"] > div:focus-within {
     font-family: 'Cormorant Garamond', serif;
 }
 
+/* Industry tag on card */
+.card-industry-tag {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(6,6,8,0.85);
+    border: 1px solid var(--gold-dim);
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-size: 0.55em;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+/* Card entrance animation with stagger */
+.rec-card.entrance-1 { animation: cardEntrance 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.05s both; }
+.rec-card.entrance-2 { animation: cardEntrance 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
+.rec-card.entrance-3 { animation: cardEntrance 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.25s both; }
+.rec-card.entrance-4 { animation: cardEntrance 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.35s both; }
+.rec-card.entrance-5 { animation: cardEntrance 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.45s both; }
+
 /* ══════════════════════════
    SELECTED MOVIE CARD
 ══════════════════════════ */
@@ -761,7 +883,6 @@ div[data-baseweb="select"] > div:focus-within {
 }
 .sel-synopsis {
     color: #9A927F;
-    font-size: 0.93em;
     line-height: 1.7;
     padding-top: 16px;
     border-top: 1px solid var(--border);
@@ -853,10 +974,11 @@ div[data-baseweb="select"] > div:focus-within {
     padding: 18px 12px;
     border-right: 1px solid var(--border);
     background: var(--surface);
-    transition: background 0.3s;
+    transition: background 0.3s, transform 0.3s;
+    cursor: default;
 }
 .stat-item:last-child { border-right: none; }
-.stat-item:hover { background: var(--surface2); }
+.stat-item:hover { background: var(--surface2); transform: translateY(-2px); }
 .stat-num {
     font-family: 'Playfair Display', serif;
     font-size: 1.8em;
@@ -895,6 +1017,37 @@ div[data-baseweb="select"] > div:focus-within {
     gap: 10px;
 }
 .ll-toast-icon { color: var(--gold); font-size: 1.1em; }
+
+/* ══════════════════════════
+   SUCCESS FLASH (on discover)
+══════════════════════════ */
+.results-header {
+    animation: successPulse 0.8s ease both;
+}
+
+/* ══════════════════════════
+   LOADING PROGRESS BAR
+══════════════════════════ */
+.ll-progress-wrap {
+    width: 100%;
+    height: 2px;
+    background: var(--surface3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+.ll-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light));
+    animation: progressFill 1.5s ease forwards;
+}
+
+/* ══════════════════════════
+   SECTION TRANSITION
+══════════════════════════ */
+.section-reveal {
+    animation: revealSlide 0.6s ease both;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -908,6 +1061,7 @@ st.markdown("""
     <div class="amb-blob amb-blob-2"></div>
     <div class="amb-blob amb-blob-3"></div>
 </div>
+<div class="particles-container" id="particlesContainer"></div>
 """, unsafe_allow_html=True)
 
 
@@ -945,26 +1099,7 @@ st.markdown(f"""
 
 
 # ══════════════════════════════════════════════════════════════
-#  HERO
-# ══════════════════════════════════════════════════════════════
-st.markdown(f"""
-<div class="hero">
-  <div class="hero-stars" id="heroStars"></div>
-  <div class="hero-icon-wrap">
-    <img src="data:image/png;base64,{hero_icon_base64}" class="hero-icon-img" alt="LensLore logo">
-  </div>
-  <div class="hero-logo">
-    <span class="logo-l">Lens</span><span class="logo-r">Lore</span>
-  </div>
-  <p class="hero-tagline">Where every frame tells a story</p>
-  <p class="hero-sub" id="heroSub">Intelligent Cinema Discovery &nbsp;·&nbsp; Bollywood &amp; Hollywood</p>
-  <div class="hero-line"></div>
-</div>
-""", unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════
-#  DATA
+#  DATA LOADING
 # ══════════════════════════════════════════════════════════════
 @st.cache_data(show_spinner=False)
 def load_data():
@@ -1022,9 +1157,97 @@ def fetch_movie_details(movie_id):
 
 
 # ══════════════════════════════════════════════════════════════
-#  OUTCOME LOGGER
+#  SMART TAG BUILDER  ← FIX: build tags from all available cols
+#  This ensures Hollywood movies work even when 'tags' col is
+#  missing, empty, or structured differently from Bollywood.
 # ══════════════════════════════════════════════════════════════
-LOG_PATH = "logs/recom.csv"
+def build_tags_column(df):
+    """
+    Robust tag builder that:
+    1. Uses existing 'tags' column if present and non-empty
+    2. Falls back to assembling tags from genres, cast, keywords,
+       overview, director, and other available text columns
+    3. Returns df with a guaranteed non-null 'tags' column
+    """
+    df = df.copy()
+
+    # Candidate source columns (case-insensitive lookup)
+    col_map = {c.lower(): c for c in df.columns}
+
+    def get_col(name):
+        return col_map.get(name.lower())
+
+    def col_to_text(series):
+        """Convert a column (list-like or string) to space-separated text."""
+        def row_text(v):
+            if pd.isna(v) or str(v).strip() in ('', 'nan', 'None'):
+                return ''
+            if isinstance(v, list):
+                return ' '.join(str(x) for x in v if x)
+            try:
+                parsed = ast.literal_eval(str(v))
+                if isinstance(parsed, list):
+                    return ' '.join(str(x) for x in parsed if x)
+            except Exception:
+                pass
+            return str(v).replace(',', ' ')
+        return series.apply(row_text)
+
+    # Check if 'tags' column already exists and is usable
+    tags_col = get_col('tags')
+    if tags_col:
+        existing = df[tags_col].apply(
+            lambda v: col_to_text(pd.Series([v]))[0] if not pd.isna(v) else ''
+        )
+        non_empty = (existing.str.strip() != '').sum()
+        if non_empty > len(df) * 0.3:   # at least 30% rows have real tags
+            df['tags'] = existing
+            return df
+
+    # Build from components
+    parts = []
+    for col_name in ['genres', 'cast', 'keywords', 'overview', 'director',
+                     'tagline', 'production_companies', 'spoken_languages']:
+        real_col = get_col(col_name)
+        if real_col:
+            parts.append(col_to_text(df[real_col]))
+
+    if parts:
+        combined = parts[0].copy()
+        for p in parts[1:]:
+            combined = combined + ' ' + p
+        df['tags'] = combined.str.strip()
+    else:
+        # Last resort: concat all text-like columns
+        text_cols = [c for c in df.columns
+                     if df[c].dtype == object and c.lower() not in ('title', 'movie_id', 'id')]
+        if text_cols:
+            df['tags'] = df[text_cols].fillna('').agg(' '.join, axis=1)
+        else:
+            df['tags'] = df['title'].fillna('')
+
+    # Ensure no NaN
+    df['tags'] = df['tags'].fillna('').astype(str)
+    return df
+
+
+def get_movie_id(row, df_columns):
+    """
+    Robustly fetch movie_id from a row, trying several common column names.
+    Handles Bollywood (movie_id) and Hollywood (id, tmdb_id, etc.)
+    """
+    for candidate in ['movie_id', 'id', 'tmdb_id', 'movieid', 'film_id']:
+        if candidate in df_columns:
+            val = row.get(candidate)
+            if val and not pd.isna(val):
+                return int(val)
+    return None
+
+
+# ══════════════════════════════════════════════════════════════
+#  OUTCOME LOGGER  ← FIX: saves to logs/prediction.csv
+# ══════════════════════════════════════════════════════════════
+LOG_PATH = "logs/prediction.csv"
 LOG_COLS = ["timestamp", "industry", "genre_filter", "actor_filter",
             "selected_movie", "rec_1", "rec_2", "rec_3", "rec_4", "rec_5"]
 
@@ -1040,13 +1263,96 @@ def log_recommendation(industry, genre, actor, selected_movie, recs):
     }
     for i, rec in enumerate(recs[:5], 1):
         row[f"rec_{i}"] = rec
-    for j in range(len(recs)+1, 6):
+    for j in range(len(recs) + 1, 6):
         row[f"rec_{j}"] = ""
     with open(LOG_PATH, "a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=LOG_COLS)
         if not file_exists:
             writer.writeheader()
         writer.writerow(row)
+
+
+# ══════════════════════════════════════════════════════════════
+#  RECOMMENDATION ENGINE
+#  FIX 1 — min_df=1 so Hollywood's unique tags are NOT dropped
+#  FIX 2 — df passed as parameter (no global mutation)
+#  FIX 3 — n_neighbors capped to dataset size (no crash on small sets)
+# ══════════════════════════════════════════════════════════════
+def recommend(movie_name_input, df):
+    movies, posters, links, ratings, years, overviews = [], [], [], [], [], []
+
+    # Ensure tags are built and are plain strings
+    df = build_tags_column(df)
+    df = df.reset_index(drop=True)
+
+    if df.shape[0] < 2:
+        st.warning("Not enough films for similarity matching.")
+        return movies, posters, links, ratings, years, overviews
+
+    # If we have fewer than 6 rows, just return them all
+    n_rec = min(5, df.shape[0] - 1)
+    if n_rec == 0:
+        return movies, posters, links, ratings, years, overviews
+
+    try:
+        # FIX: min_df=1 ensures no terms are dropped on smaller/unique datasets
+        tfidf   = TfidfVectorizer(max_features=5000, stop_words='english', min_df=1)
+        vectors = tfidf.fit_transform(df['tags']).toarray()
+    except Exception as e:
+        st.error(f"Vectorizer error: {e}")
+        return movies, posters, links, ratings, years, overviews
+
+    # Safety: if all vectors are zero (empty tags) fall back to title matching
+    if vectors.sum() == 0:
+        st.warning("Tags appear empty — falling back to title-based listing.")
+        subset = df[df['title'] != movie_name_input].head(5)
+        for _, row in subset.iterrows():
+            mid = get_movie_id(row, df.columns)
+            p, l, r, y, o = fetch_movie_details(mid)
+            movies.append(row['title']); posters.append(p)
+            links.append(l); ratings.append(r); years.append(y); overviews.append(o)
+        return movies, posters, links, ratings, years, overviews
+
+    model = NearestNeighbors(metric='cosine', algorithm='brute')
+    model.fit(vectors)
+
+    matches = df[df['title'] == movie_name_input]
+    if matches.empty:
+        st.error(f'Movie "{movie_name_input}" not found in current dataset.')
+        return movies, posters, links, ratings, years, overviews
+
+    idx = matches.index[0]
+    n_neighbors = min(n_rec + 1, len(df))   # +1 because first result = itself
+    distances, indices = model.kneighbors([vectors[idx]], n_neighbors=n_neighbors)
+
+    for i in indices[0][1:]:    # skip index 0 (the movie itself)
+        movie = df.iloc[i]
+        mid   = get_movie_id(movie, df.columns)
+        p, l, r, y, o = fetch_movie_details(mid)
+        movies.append(movie['title']); posters.append(p)
+        links.append(l); ratings.append(r); years.append(y); overviews.append(o)
+
+    return movies, posters, links, ratings, years, overviews
+
+
+# ══════════════════════════════════════════════════════════════
+#  HERO
+# ══════════════════════════════════════════════════════════════
+industry_display = st.session_state.get("industry_choice", "Bollywood & Hollywood")
+st.markdown(f"""
+<div class="hero">
+  <div class="hero-stars" id="heroStars"></div>
+  <div class="hero-icon-wrap">
+    <img src="data:image/png;base64,{hero_icon_base64}" class="hero-icon-img" alt="LensLore logo">
+  </div>
+  <div class="hero-logo">
+    <span class="logo-l">Lens</span><span class="logo-r">Lore</span>
+  </div>
+  <p class="hero-tagline">Where every frame tells a story</p>
+  <p class="hero-sub" id="heroSub">Intelligent Cinema Discovery &nbsp;·&nbsp; Bollywood &amp; Hollywood</p>
+  <div class="hero-line"></div>
+</div>
+""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1084,7 +1390,18 @@ st.markdown('<p class="s-eyebrow">Step 01</p>'
             '<p class="s-heading">Set the Stage</p>', unsafe_allow_html=True)
 
 industry    = st.selectbox('Industry', ('Bollywood', 'Hollywood'))
+st.session_state["industry_choice"] = industry
 selected_df = (movie_boll if industry == 'Bollywood' else movie_holl).copy()
+
+# Show which industry is active as a badge
+st.markdown(f"""
+<div style="margin: -0.5rem 0 1rem;">
+  <span class="industry-badge">
+    <span class="badge-dot"></span>
+    {industry} · {len(selected_df):,} films loaded
+  </span>
+</div>
+""", unsafe_allow_html=True)
 
 selected_df['genres_parsed'] = selected_df['genres'].apply(parse_list)
 all_genres = sorted(set(
@@ -1129,7 +1446,7 @@ selected_movie = st.selectbox("Title", sorted(movie_list), key="movie_select")
 # ══════════════════════════════════════════════════════════════
 sel_row = selected_df[selected_df['title'] == selected_movie]
 if not sel_row.empty:
-    sel_id = sel_row.iloc[0].get('movie_id') if 'movie_id' in sel_row.columns else None
+    sel_id = get_movie_id(sel_row.iloc[0], selected_df.columns)
     s_poster, s_link, s_rating, s_year, s_overview = fetch_movie_details(sel_id)
 
     safe_title    = html.escape(selected_movie)
@@ -1159,41 +1476,6 @@ if not sel_row.empty:
 
 
 # ══════════════════════════════════════════════════════════════
-#  RECOMMENDATION ENGINE
-# ══════════════════════════════════════════════════════════════
-def recommend(movie_name_input):
-    movies, posters, links, ratings, years, overviews = [], [], [], [], [], []
-    selected_df['tags'] = selected_df['tags'].apply(
-        lambda x: ' '.join(x) if isinstance(x, list) else str(x)
-    )
-    if selected_df.shape[0] < 6:
-        st.warning("Not enough films for similarity matching. Showing all results instead.")
-        for _, row in selected_df.iterrows():
-            mid = row.get('movie_id') if 'movie_id' in row else None
-            p, l, r, y, o = fetch_movie_details(mid)
-            movies.append(row['title']); posters.append(p)
-            links.append(l); ratings.append(r); years.append(y); overviews.append(o)
-        return movies, posters, links, ratings, years, overviews
-
-    tfidf   = TfidfVectorizer(max_features=5000, stop_words='english', min_df=2)
-    vectors = tfidf.fit_transform(selected_df['tags']).toarray()
-    model   = NearestNeighbors(metric='cosine', algorithm='brute')
-    model.fit(vectors)
-
-    idx                = selected_df[selected_df['title'] == movie_name_input].index[0]
-    distances, indices = model.kneighbors([vectors[idx]], n_neighbors=6)
-
-    for dist, i in zip(distances[0][1:], indices[0][1:]):
-        movie = selected_df.iloc[i]
-        mid   = movie.get('movie_id') if 'movie_id' in movie else None
-        p, l, r, y, o = fetch_movie_details(mid)
-        movies.append(movie['title']); posters.append(p)
-        links.append(l); ratings.append(r); years.append(y); overviews.append(o)
-
-    return movies, posters, links, ratings, years, overviews
-
-
-# ══════════════════════════════════════════════════════════════
 #  DISCOVER BUTTON
 # ══════════════════════════════════════════════════════════════
 st.markdown('<div class="divider" style="margin-top: 3rem;"></div>', unsafe_allow_html=True)
@@ -1201,6 +1483,8 @@ bc = st.columns([2.5, 1, 2.5])
 with bc[1]:
     if st.button("✦  Discover Films"):
         st.session_state.recommend_triggered = True
+        st.session_state.last_industry = industry
+        st.session_state.last_movie    = selected_movie
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1208,31 +1492,40 @@ with bc[1]:
 # ══════════════════════════════════════════════════════════════
 if st.session_state.get("recommend_triggered"):
     with st.spinner("Scanning the archive…"):
-        recs, posters, links, ratings, years, overviews = recommend(selected_movie)
+        # FIX: pass selected_df as parameter — no global mutation
+        recs, posters, links, ratings, years, overviews = recommend(selected_movie, selected_df)
 
-    log_recommendation(industry, genre, actor, selected_movie, recs)
+    if recs:
+        log_recommendation(industry, genre, actor, selected_movie, recs)
 
     if recs:
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-        st.markdown('<p class="s-eyebrow">Step 03</p>'
-                    '<p class="s-heading">Curated Selections</p>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="results-header">
+          <p class="s-eyebrow">Step 03</p>
+          <p class="s-heading">Curated Selections</p>
+          <div class="ll-progress-wrap"><div class="ll-progress-bar"></div></div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        def rec_card(col, title, poster, link, rating, year, overview, delay_ms=0, num=1):
-            safe_title = html.escape(title)
-            safe_desc  = html.escape(overview or "")
+        def rec_card(col, title, poster, link, rating, year, overview, entry_class, num=1, ind=""):
+            safe_title = html.escape(str(title))
+            safe_desc  = html.escape(str(overview or ""))
             if len(safe_desc) > 180:
                 safe_desc = safe_desc[:180] + "…"
             display_img = poster if poster else "https://via.placeholder.com/500x750/0E0E12/C9A84C?text=No+Poster"
             href = link if link else "#"
+            ind_tag = f'<div class="card-industry-tag">{html.escape(ind)}</div>' if ind else ''
 
             with col:
                 st.markdown(f"""
                 <a href="{href}" target="_blank" class="rec-card-link">
-                    <div class="rec-card reveal-on-scroll" style="animation-delay:{delay_ms}ms">
+                    <div class="rec-card {entry_class}">
                         <div class="card-image-wrapper">
                             <img src="{display_img}" alt="{safe_title}" loading="lazy">
                             <div class="card-scanline"></div>
                             <div class="card-num">{num:02d}</div>
+                            {ind_tag}
                             <div class="card-overlay">
                                 <span class="card-overlay-icon">▶</span>
                                 <p>{safe_desc}</p>
@@ -1250,26 +1543,31 @@ if st.session_state.get("recommend_triggered"):
                 </a>
                 """, unsafe_allow_html=True)
 
+        entrance_classes = ["entrance-1", "entrance-2", "entrance-3", "entrance-4", "entrance-5"]
+
         # Row 1 — 2 cards
         r1 = st.columns(2, gap="large")
         for i in range(min(2, len(recs))):
-            rec_card(r1[i], recs[i], posters[i], links[i], ratings[i], years[i], overviews[i], i*120, i+1)
+            rec_card(r1[i], recs[i], posters[i], links[i], ratings[i], years[i],
+                     overviews[i], entrance_classes[i], i + 1, industry)
 
         # Row 2 — 2 cards
         if len(recs) > 2:
             st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
             r2 = st.columns(2, gap="large")
             for j in range(2, min(4, len(recs))):
-                rec_card(r2[j-2], recs[j], posters[j], links[j], ratings[j], years[j], overviews[j], j*120, j+1)
+                rec_card(r2[j - 2], recs[j], posters[j], links[j], ratings[j], years[j],
+                         overviews[j], entrance_classes[j], j + 1, industry)
 
-        # Row 3 — 1 centered card
+        # Row 3 — 1 centred card
         if len(recs) > 4:
             st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
             r3 = st.columns([1.2, 1.6, 1.2], gap="large")
-            rec_card(r3[1], recs[4], posters[4], links[4], ratings[4], years[4], overviews[4], 600, 5)
+            rec_card(r3[1], recs[4], posters[4], links[4], ratings[4], years[4],
+                     overviews[4], entrance_classes[4], 5, industry)
 
     else:
-        st.error("No recommendations found.")
+        st.error("No recommendations found. Try a different movie, genre, or actor filter.")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1321,67 +1619,95 @@ st.markdown("""
     }
 
     /* ══════════════════════
-       2. HERO STARS
+       2. FLOATING PARTICLES
+    ══════════════════════ */
+    const pContainer = document.getElementById('particlesContainer');
+    if (pContainer) {
+        function spawnParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const x   = Math.random() * 100;
+            const dur  = Math.random() * 12 + 8;
+            const size = Math.random() * 3 + 1;
+            const drift= (Math.random() - 0.5) * 120;
+            p.style.cssText = `
+                left: ${x}%;
+                width: ${size}px; height: ${size}px;
+                --drift: ${drift}px;
+                animation: floatParticle ${dur}s linear forwards;
+                opacity: 0;
+            `;
+            pContainer.appendChild(p);
+            setTimeout(() => p.remove(), dur * 1000);
+        }
+        setInterval(spawnParticle, 900);
+        for (let i = 0; i < 6; i++) setTimeout(spawnParticle, i * 400);
+    }
+
+    /* ══════════════════════
+       3. HERO STARS
     ══════════════════════ */
     waitFor('#heroStars', function(container) {
-        const count = 28;
+        const count = 32;
         for (let i = 0; i < count; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             const x = Math.random() * 100;
             const y = Math.random() * 100;
-            const size = Math.random() * 2 + 1;
+            const size = Math.random() * 2.5 + 0.5;
             const delay = Math.random() * 4;
             const duration = Math.random() * 3 + 2;
             star.style.cssText = `
                 left: ${x}%; top: ${y}%;
                 width: ${size}px; height: ${size}px;
                 animation: starTwinkle ${duration}s ${delay}s ease-in-out infinite;
-                opacity: ${Math.random() * 0.5 + 0.1};
+                opacity: ${Math.random() * 0.6 + 0.1};
             `;
             container.appendChild(star);
         }
     });
 
     /* ══════════════════════
-       3. BUTTON RIPPLE
+       4. BUTTON RIPPLE
     ══════════════════════ */
-    waitFor('.stButton > button', function(btn) {
-        btn.addEventListener('click', function(e) {
-            const rect = btn.getBoundingClientRect();
-            const ripple = document.createElement('span');
-            ripple.className = 'ripple-effect';
-            ripple.style.left = (e.clientX - rect.left) + 'px';
-            ripple.style.top  = (e.clientY - rect.top) + 'px';
-            btn.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 900);
+    function initButtonRipple() {
+        document.querySelectorAll('.stButton > button').forEach(btn => {
+            if (btn._rippleAdded) return;
+            btn._rippleAdded = true;
+            btn.addEventListener('click', function(e) {
+                const rect = btn.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple-effect';
+                ripple.style.left = (e.clientX - rect.left) + 'px';
+                ripple.style.top  = (e.clientY - rect.top)  + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 900);
+            });
         });
-    });
+    }
+    setTimeout(initButtonRipple, 600);
+    setTimeout(initButtonRipple, 2000);
 
     /* ══════════════════════
-       4. SCROLL REVEAL (Intersection Observer)
+       5. SCROLL REVEAL
     ══════════════════════ */
     function initScrollReveal() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry, idx) => {
                 if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('revealed');
-                    }, idx * 80);
+                    setTimeout(() => entry.target.classList.add('revealed'), idx * 80);
                     observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
         document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
     }
-    // Run now and re-run after Streamlit updates
     setTimeout(initScrollReveal, 500);
     setTimeout(initScrollReveal, 2000);
     setTimeout(initScrollReveal, 4000);
 
     /* ══════════════════════
-       5. PARALLAX HERO on mouse move
+       6. PARALLAX HERO
     ══════════════════════ */
     waitFor('.hero', function(hero) {
         document.addEventListener('mousemove', (e) => {
@@ -1397,7 +1723,7 @@ st.markdown("""
     });
 
     /* ══════════════════════
-       6. LOGO SHIMMER on hover
+       7. LOGO SHIMMER on hover
     ══════════════════════ */
     waitFor('.hero-logo', function(logo) {
         logo.addEventListener('mouseenter', () => {
@@ -1410,20 +1736,32 @@ st.markdown("""
     });
 
     /* ══════════════════════
-       7. CARD AMBIENT GLOW on hover
+       8. CARD AMBIENT GLOW
     ══════════════════════ */
     function initCardGlow() {
         document.querySelectorAll('.rec-card').forEach(card => {
+            if (card._glowAdded) return;
+            card._glowAdded = true;
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                const y = ((e.clientY - rect.top)  / rect.height) * 100;
                 card.style.setProperty('--mouse-x', x + '%');
                 card.style.setProperty('--mouse-y', y + '%');
-                card.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(201,168,76,0.05) 0%, transparent 60%)`;
+                card.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(201,168,76,0.06) 0%, transparent 60%)`;
             });
             card.addEventListener('mouseleave', () => {
                 card.style.backgroundImage = '';
+            });
+            /* Tilt on hover */
+            card.addEventListener('mousemove', (e) => {
+                const rect  = card.getBoundingClientRect();
+                const relX  = (e.clientX - rect.left) / rect.width  - 0.5;
+                const relY  = (e.clientY - rect.top)  / rect.height - 0.5;
+                card.style.transform = `translateY(-14px) scale(1.02) rotateX(${-relY * 6}deg) rotateY(${relX * 6}deg)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
             });
         });
     }
@@ -1431,7 +1769,7 @@ st.markdown("""
     setTimeout(initCardGlow, 4000);
 
     /* ══════════════════════
-       8. STATS COUNT-UP ANIMATION
+       9. STATS COUNT-UP
     ══════════════════════ */
     function animateCountUp(el) {
         const raw = el.textContent.replace(/,/g, '');
@@ -1460,7 +1798,7 @@ st.markdown("""
     });
 
     /* ══════════════════════
-       9. FILM STRIP PAUSE on hover
+       10. FILM STRIP PAUSE
     ══════════════════════ */
     document.querySelectorAll('.strip-inner').forEach(strip => {
         strip.addEventListener('mouseenter', () => strip.style.animationPlayState = 'paused');
@@ -1468,20 +1806,50 @@ st.markdown("""
     });
 
     /* ══════════════════════
-       10. TOAST on first load
+       11. TOAST on first load
     ══════════════════════ */
-    setTimeout(() => {
-        const toast = document.createElement('div');
-        toast.className = 'll-toast';
-        toast.innerHTML = '<span class="ll-toast-icon">✦</span> Welcome to LensLore — discover your next film';
-        document.body.appendChild(toast);
+    if (!sessionStorage.getItem('ll_greeted')) {
+        sessionStorage.setItem('ll_greeted', '1');
         setTimeout(() => {
-            toast.style.transition = 'opacity 0.6s, transform 0.6s';
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(20px)';
-            setTimeout(() => toast.remove(), 700);
-        }, 3500);
-    }, 1200);
+            const toast = document.createElement('div');
+            toast.className = 'll-toast';
+            toast.innerHTML = '<span class="ll-toast-icon">✦</span> Welcome to LensLore — discover your next film';
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.6s, transform 0.6s';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 700);
+            }, 3500);
+        }, 1200);
+    }
+
+    /* ══════════════════════
+       12. CARD ENTRANCE — re-trigger on results load
+    ══════════════════════ */
+    function triggerEntrances() {
+        document.querySelectorAll('.rec-card').forEach(card => {
+            card.style.opacity = '';
+        });
+    }
+    setTimeout(triggerEntrances, 2000);
+    setTimeout(triggerEntrances, 5000);
+
+    /* ══════════════════════
+       13. SELECTION-CHANGE FLASH on industry badge
+    ══════════════════════ */
+    waitForAll('div[data-baseweb="select"]', function(selects) {
+        selects.forEach(sel => {
+            sel.addEventListener('mousedown', () => {
+                const badge = document.querySelector('.industry-badge');
+                if (badge) {
+                    badge.style.transition = 'box-shadow 0.3s';
+                    badge.style.boxShadow = '0 0 0 4px rgba(201,168,76,0.25)';
+                    setTimeout(() => badge.style.boxShadow = '', 600);
+                }
+            });
+        });
+    });
 
 })();
 </script>
