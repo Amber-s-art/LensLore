@@ -3,3 +3,4 @@ timestamp,industry,genre_filter,actor_filter,input_movie,rec_1,rec_2,rec_3,rec_4
 2026-05-10 10:03:13,Bollywood,All,All,12th Fail,Shikara,Non Stop Dhamaal,Gangaajal,Siren,Fugly,19.2%,15.9%,15.2%,15.2%,14.7%,3.4,N/A,7.8,5.3,4.7,
 2026-05-10 10:03:53,Bollywood,All,All,A Flying Jatt,Baaghi 3,Jajantaram Mamantaram,Aladin,ABCD (Any Body Can Dance),Jungle Ki Hasina,29.9%,27.1%,25.8%,24.3%,24.1%,2.3,6.1,4.7,6.3,N/A,
 2026-05-10 18:10:35,Hollywood,sciencefiction,All,Battleship,Independence Daysaster,Titan A.E.,Impostor,Space Pirate Captain Harlock,Meet Dave,12.2%,10.0%,8.7%,7.7%,7.6%,3.5,6.6,6.2,7.1,5.1,
+2026-05-10 18:11:32,Hollywood,sciencefiction,All,Cube,The Maze Runner,Nothing,Sleep Dealer,Primer,Knowing,13.4%,7.8%,7.6%,7.5%,7.0%,6.8,6.1,6.0,6.7,6.2,
