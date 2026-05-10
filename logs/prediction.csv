@@ -6,3 +6,4 @@ timestamp,industry,genre_filter,actor_filter,input_movie,rec_1,rec_2,rec_3,rec_4
 2026-05-10 18:11:32,Hollywood,sciencefiction,All,Cube,The Maze Runner,Nothing,Sleep Dealer,Primer,Knowing,13.4%,7.8%,7.6%,7.5%,7.0%,6.8,6.1,6.0,6.7,6.2,
 2026-05-10 18:13:05,Hollywood,sciencefiction,All,The Maze Runner,9,Logan's Run,The Book of Eli,Cube,Mutant World,15.3%,15.3%,14.5%,13.4%,12.4%,7.0,6.8,6.8,7.1,2.8,
 2026-05-10 18:14:54,Hollywood,sciencefiction,All,The Matrix Reloaded,The Matrix Revolutions,The Matrix,Dark City,Blade Runner,A Scanner Darkly,44.8%,27.2%,17.8%,13.0%,11.6%,6.7,8.7,7.6,8.1,7.0,
+2026-05-10 18:17:44,Hollywood,sciencefiction,All,Transcendence,Listening,Her,2001: A Space Odyssey,The Matrix Revolutions,Self/less,14.8%,14.1%,13.5%,12.5%,10.8%,5.6,8.0,8.3,6.7,6.5,
