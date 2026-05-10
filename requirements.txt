@@ -6,3 +6,4 @@ nltk
 requests
 streamlit-option-menu
 plotly
+PyGithub==2.1.1
