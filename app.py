@@ -54,6 +54,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from PIL import Image
+import streamlit as st
+import csv
+import io
+from datetime import datetime
+from github import Github
+from github.GithubException import GithubException
 
 # ══════════════════════════════════════════════════════════════════
 #  API CREDENTIALS
@@ -891,43 +897,94 @@ def recommend(movie_name: str, df: pd.DataFrame) -> list:
 
 
 # ══════════════════════════════════════════════════════════════════
-#  LOGGER → logs/prediction.csv
+#  GITHUB API LOGGER → logs/prediction.csv
 # ══════════════════════════════════════════════════════════════════
-LOG_PATH = "logs/prediction.csv"
+REPO_NAME = "Amber-s-art/LensLore"
+FILE_PATH = "logs/prediction.csv"
+
 LOG_COLS = [
-    "timestamp","industry","genre_filter","actor_filter","input_movie",
-    "rec_1","rec_2","rec_3","rec_4","rec_5",
-    "score_1","score_2","score_3","score_4","score_5",
-    "imdb_1","imdb_2","imdb_3","imdb_4","imdb_5",
-    "user_clicked",
+    "timestamp", "industry", "genre_filter", "actor_filter", "input_movie",
+    "rec_1", "rec_2", "rec_3", "rec_4", "rec_5",
+    "score_1", "score_2", "score_3", "score_4", "score_5",
+    "imdb_1", "imdb_2", "imdb_3", "imdb_4", "imdb_5",
+    "user_clicked"
 ]
 
+def _update_github_csv(new_row_dict=None, update_last_click=None):
+    """Helper function to fetch, update, and commit the CSV back to GitHub."""
+    try:
+        # Authenticate using the secret token
+        g = Github(st.secrets["GITHUB_TOKEN"])
+        repo = g.get_repo(REPO_NAME)
+        
+        # Try to get the existing file
+        try:
+            contents = repo.get_contents(FILE_PATH)
+            current_csv_content = contents.decoded_content.decode("utf-8")
+            sha = contents.sha
+        except GithubException:
+            # File doesn't exist yet
+            current_csv_content = ",".join(LOG_COLS) + "\n"
+            sha = None
+
+        # Parse the current CSV into a list of dictionaries
+        csv_reader = csv.DictReader(io.StringIO(current_csv_content))
+        rows = list(csv_reader)
+
+        # Action: Add a completely new prediction row
+        if new_row_dict:
+            rows.append(new_row_dict)
+            commit_message = f"Log prediction for: {new_row_dict.get('input_movie', 'Unknown')}"
+
+        # Action: Update the 'user_clicked' column of the most recent row
+        if update_last_click and rows:
+            rows[-1]["user_clicked"] = update_last_click
+            commit_message = f"Log user click: {update_last_click}"
+
+        # Rebuild the CSV string
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=LOG_COLS)
+        writer.writeheader()
+        writer.writerows(rows)
+        new_csv_content = output.getvalue()
+
+        # Push the commit back to GitHub
+        if sha:
+            repo.update_file(FILE_PATH, commit_message, new_csv_content, sha)
+        else:
+            repo.create_file(FILE_PATH, "Initialize prediction log", new_csv_content)
+            
+    except Exception as e:
+        print(f"Failed to log to GitHub: {e}")
+
+
 def log_prediction(industry, genre, actor, movie, recs):
-    os.makedirs("logs", exist_ok=True)
-    exists = os.path.isfile(LOG_PATH)
-    row = {"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-           "industry": industry, "genre_filter": genre,
-           "actor_filter": actor, "input_movie": movie, "user_clicked": ""}
+    """Formats the prediction data and sends it to GitHub."""
+    row = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "industry": industry, 
+        "genre_filter": genre,
+        "actor_filter": actor, 
+        "input_movie": movie, 
+        "user_clicked": "" # Stays empty until they click a card
+    }
+    
+    # Fill in the 5 recommendations
     for i, r in enumerate(recs[:5], 1):
         row[f"rec_{i}"]   = r.get("title","")
         row[f"score_{i}"] = f"{r.get('match_score',0):.1f}%"
         row[f"imdb_{i}"]  = r.get("imdb_rating","N/A")
+        
+    # Ensure empty strings if there are less than 5 recs
     for j in range(len(recs)+1, 6):
         row[f"rec_{j}"] = row[f"score_{j}"] = row[f"imdb_{j}"] = ""
-    with open(LOG_PATH, "a", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=LOG_COLS)
-        if not exists: w.writeheader()
-        w.writerow(row)
+        
+    _update_github_csv(new_row_dict=row)
+
 
 def log_click(clicked_title: str):
-    if not os.path.isfile(LOG_PATH): return
-    with open(LOG_PATH, "r", newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    if rows: rows[-1]["user_clicked"] = clicked_title
-    with open(LOG_PATH, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=LOG_COLS)
-        w.writeheader(); w.writerows(rows)
-
+    """Updates the last logged row in GitHub with the movie the user clicked."""
+    _update_github_csv(update_last_click=clicked_title)
 
 # ══════════════════════════════════════════════════════════════════
 #  HERO
