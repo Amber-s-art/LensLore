@@ -800,13 +800,30 @@ def fetch_all_info(title: str, movie_id=None, year_hint: str = "") -> dict:
 
     return {**tmdb_data, "imdb_rating": display_imdb}
 
+# ══════════════════════════════════════════════════════════════════
+#  CACHED ML BUILDER
+# ══════════════════════════════════════════════════════════════════
+@st.cache_resource
+def build_ml_model(df):
+    """Caches the TF-IDF matrix and KNN model so it only builds once per dataset."""
+    try:
+        tfidf = TfidfVectorizer(max_features=5000, stop_words="english", min_df=1)
+        vectors = tfidf.fit_transform(df["tags"]).toarray()
+        
+        if vectors.sum() == 0:
+            return None, None, vectors
+            
+        model = NearestNeighbors(metric="cosine", algorithm="brute")
+        model.fit(vectors)
+        return tfidf, model, vectors
+    except Exception as e:
+        st.error(f"TF-IDF error: {e}")
+        return None, None, []
 
 # ══════════════════════════════════════════════════════════════════
 #  RECOMMENDATION ENGINE
-#  Returns list of dicts: title, poster, trailer, tmdb_rating,
-#  imdb_rating, year, overview, genres, match_score (0–100).
-#  All 5 movies fetched concurrently via ThreadPoolExecutor.
 # ══════════════════════════════════════════════════════════════════
+
 def recommend(movie_name: str, df: pd.DataFrame) -> list:
     df    = build_tags(df).reset_index(drop=True)
     n     = len(df)
@@ -814,14 +831,8 @@ def recommend(movie_name: str, df: pd.DataFrame) -> list:
 
     n_rec = min(5, n - 1)
 
-    # min_df=1: Hollywood tags are sparse; min_df=2 would discard most terms
-    try:
-        tfidf   = TfidfVectorizer(max_features=5000, stop_words="english", min_df=1)
-        vectors = tfidf.fit_transform(df["tags"]).toarray()
-    except Exception as e:
-        st.error(f"TF-IDF error: {e}")
-        return []
-
+    tfidf, model, vectors = build_ml_model(df)
+    
     if vectors.sum() == 0:
         # All-zero matrix: fall back to top-n titles
         subset = df[df["title"] != movie_name].head(5)
@@ -1057,65 +1068,60 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-
 # ══════════════════════════════════════════════════════════════════
-#  DISCOVER BUTTON
+#  DISCOVER BUTTON & EXECUTION
 # ══════════════════════════════════════════════════════════════════
 st.markdown('<div class="divider" style="margin-top:2rem"></div>', unsafe_allow_html=True)
 _bc = st.columns([2, 1, 2])
+
 with _bc[1]:
     if st.button("✦  Discover Films"):
-        st.session_state.update({
-            "recs":        None,
-            "in_movie":    selected_movie,
-            "in_industry": industry,
-            "in_genre":    genre,
-            "in_actor":    actor,
-            "fired":       True,
-        })
+        
+        # 1. Show the skeleton loader BEFORE running the heavy ML model
+        skel = st.empty()
+        skel.markdown("""
+        <div class="divider"></div>
+        <div class="skel-grid">
+          <div class="skel-card"><div class="skel-post"></div>
+            <div class="skel-body"><div class="skel-line"></div>
+            <div class="skel-line s2"></div><div class="skel-line s3"></div></div></div>
+          <div class="skel-card"><div class="skel-post" style="animation-delay:.14s"></div>
+            <div class="skel-body"><div class="skel-line" style="animation-delay:.14s"></div>
+            <div class="skel-line s2" style="animation-delay:.28s"></div>
+            <div class="skel-line s3" style="animation-delay:.42s"></div></div></div>
+          <div class="skel-card"><div class="skel-post" style="animation-delay:.28s"></div>
+            <div class="skel-body"><div class="skel-line" style="animation-delay:.28s"></div>
+            <div class="skel-line s2" style="animation-delay:.42s"></div>
+            <div class="skel-line s3" style="animation-delay:.56s"></div></div></div>
+          <div class="skel-card"><div class="skel-post" style="animation-delay:.42s"></div>
+            <div class="skel-body"><div class="skel-line" style="animation-delay:.42s"></div>
+            <div class="skel-line s2" style="animation-delay:.56s"></div>
+            <div class="skel-line s3" style="animation-delay:.70s"></div></div></div>
+        </div>
+        <p class="skel-msg">✦ &nbsp; Scanning cinematic patterns &nbsp;·&nbsp; fetching TMDB &amp; IMDb data &nbsp; ✦</p>
+        """, unsafe_allow_html=True)
 
+        # 2. Run the heavy function ONLY when clicked
+        with st.spinner("Analyzing the archive…"):
+            recs = recommend(selected_movie, selected_df)
+            
+        # 3. Clear the skeleton loader once data is ready
+        skel.empty()
+            
+        # 4. Save the final results to session state so they survive UI refreshes
+        st.session_state["recs"] = recs
+        st.session_state["in_movie"] = selected_movie
+        st.session_state["in_industry"] = industry
+        st.session_state["in_genre"] = genre
+        st.session_state["in_actor"] = actor
+            
+        # 5. Log the prediction
+        if recs:
+            log_prediction(industry, genre, actor, selected_movie, recs)
 
 # ══════════════════════════════════════════════════════════════════
-#  RESULTS — skeleton → parallel fetch → cards
+#  RESULTS — Render cards if recs exist in session state
 # ══════════════════════════════════════════════════════════════════
-if st.session_state.get("fired"):
-
-    # ── Skeleton placeholders ────────────────────────────────────
-    skel = st.empty()
-    skel.markdown("""
-    <div class="divider"></div>
-    <div class="skel-grid">
-      <div class="skel-card"><div class="skel-post"></div>
-        <div class="skel-body"><div class="skel-line"></div>
-        <div class="skel-line s2"></div><div class="skel-line s3"></div></div></div>
-      <div class="skel-card"><div class="skel-post" style="animation-delay:.14s"></div>
-        <div class="skel-body"><div class="skel-line" style="animation-delay:.14s"></div>
-        <div class="skel-line s2" style="animation-delay:.28s"></div>
-        <div class="skel-line s3" style="animation-delay:.42s"></div></div></div>
-      <div class="skel-card"><div class="skel-post" style="animation-delay:.28s"></div>
-        <div class="skel-body"><div class="skel-line" style="animation-delay:.28s"></div>
-        <div class="skel-line s2" style="animation-delay:.42s"></div>
-        <div class="skel-line s3" style="animation-delay:.56s"></div></div></div>
-      <div class="skel-card"><div class="skel-post" style="animation-delay:.42s"></div>
-        <div class="skel-body"><div class="skel-line" style="animation-delay:.42s"></div>
-        <div class="skel-line s2" style="animation-delay:.56s"></div>
-        <div class="skel-line s3" style="animation-delay:.70s"></div></div></div>
-    </div>
-    <p class="skel-msg">✦ &nbsp; Scanning cinematic patterns &nbsp;·&nbsp; fetching TMDB &amp; IMDb data &nbsp; ✦</p>
-    """, unsafe_allow_html=True)
-
-    # ── Run ML + API concurrently ────────────────────────────────
-    with st.spinner("Analyzing the archive…"):
-        recs = recommend(st.session_state["in_movie"], selected_df)
-
-    skel.empty()
-    st.session_state["recs"] = recs
-    if recs:
-        log_prediction(st.session_state["in_industry"], st.session_state["in_genre"],
-                       st.session_state["in_actor"],    st.session_state["in_movie"], recs)
-
-
-# ── Render stored recs ────────────────────────────────────────────
 if st.session_state.get("recs") is not None:
     recs = st.session_state["recs"]
 
@@ -1229,7 +1235,6 @@ if st.session_state.get("recs") is not None:
             r3 = st.columns([1.2, 1.6, 1.2], gap="large")
             render_card(r3[1], 4, recs[4])
 
-
 # ══════════════════════════════════════════════════════════════════
 #  FOOTER
 # ══════════════════════════════════════════════════════════════════
@@ -1241,6 +1246,7 @@ st.markdown("""
   Bollywood &amp; Hollywood &nbsp;·&nbsp; Crafted with Streamlit &nbsp;·&nbsp; © 2025
 </div>
 """, unsafe_allow_html=True)
+
 
 
 # ══════════════════════════════════════════════════════════════════
